@@ -2,7 +2,7 @@
 
 # emtime Setup Script
 
-echo "🚀 Setting up emtime dashboard..."
+echo "🚀 Setting up emtime..."
 echo ""
 
 # Check if .env exists

@@ -21,8 +21,12 @@ const DashboardPage: React.FC = () => {
 
 	// Date range state
 	const defaultRange = detectSemester();
+	const tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
+	tomorrow.setHours(23, 59, 59, 999);
+	
 	const [startDate, setStartDate] = useState<Date>(defaultRange.start);
-	const [endDate, setEndDate] = useState<Date>(defaultRange.end);
+	const [endDate, setEndDate] = useState<Date>(tomorrow);
 	const [filterHolidays, setFilterHolidays] = useState(false);
 
 	// Data state
@@ -67,7 +71,7 @@ const DashboardPage: React.FC = () => {
 
 		try {
 			await initGoogleCalendarAPI();
-			const calendarEvents = await fetchCalendarEvents(user.accessToken, ["Work", "Class", "Study"], startDate, endDate);
+			const calendarEvents = await fetchCalendarEvents(user.accessToken, ["Work", "Life", "Study"], startDate, endDate);
 			setEvents(calendarEvents);
 		} catch (err) {
 			console.error("Error loading calendar data:", err);
@@ -86,6 +90,15 @@ const DashboardPage: React.FC = () => {
 		loadCalendarData();
 	};
 
+	const handleDateRangeSelect = (newStartDate: Date, newEndDate: Date) => {
+		setStartDate(newStartDate);
+		setEndDate(newEndDate);
+		// Automatically refresh data with new date range
+		setTimeout(() => {
+			loadCalendarData();
+		}, 100);
+	};
+
 	if (!user) {
 		return null;
 	}
@@ -102,7 +115,7 @@ const DashboardPage: React.FC = () => {
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
 								</svg>
 							</div>
-							<h1 className="text-xl font-bold text-gray-900">emtime Dashboard</h1>
+							<h1 className="text-xl font-bold text-gray-900">emtime</h1>
 						</div>
 
 						<div className="relative">
@@ -138,7 +151,7 @@ const DashboardPage: React.FC = () => {
 			<main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 				{/* Controls */}
 				<div className="bg-white rounded-lg shadow p-6 mb-6">
-					<h2 className="text-lg font-semibold text-gray-900 mb-4">Date Range & Filters</h2>
+					<h2 className="text-lg font-semibold text-gray-900 mb-4">Time Range</h2>
 
 					<div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 						<div>
@@ -231,7 +244,7 @@ const DashboardPage: React.FC = () => {
 							</div>
 						</div>
 
-						{currentTab === "insights" && <InsightSection analysis={analysis} />}
+						{currentTab === "insights" && <InsightSection analysis={analysis} onDateRangeSelect={handleDateRangeSelect} />}
 						{currentTab === "goals" && <GoalSection goalAnalysis={goalAnalysis} />}
 						{currentTab === "log" && <LogSection analysis={analysis} />}
 					</>

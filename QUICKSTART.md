@@ -1,4 +1,4 @@
-# Quick Start Guide - emtime Dashboard
+# Quick Start Guide - emtime
 
 ## 🎯 What You Need
 

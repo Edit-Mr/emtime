@@ -10,7 +10,7 @@ export interface CalendarEvent {
 		dateTime?: string;
 		date?: string;
 	};
-	calendarType: "Work" | "Class" | "Study";
+	calendarType: "Work" | "Life" | "Study";
 }
 
 export const initGoogleCalendarAPI = () => {
@@ -82,12 +82,12 @@ export const fetchCalendarEvents = async (accessToken: string, calendarNames: st
 
 				const events = response.result.items || [];
 
-				// Determine calendar type
-				let calendarType: "Work" | "Class" | "Study" = "Work";
+				// Determine calendar type based on calendar name
+				let calendarType: "Work" | "Life" | "Study" = "Work";
 				const summaryLower = calendar.summary.toLowerCase();
-				if (summaryLower.includes("class")) {
-					calendarType = "Class";
-				} else if (summaryLower.includes("study")) {
+				if (summaryLower.includes("life")) {
+					calendarType = "Life";
+				} else if (summaryLower.includes("class") || summaryLower.includes("study")) {
 					calendarType = "Study";
 				}
 
@@ -114,8 +114,13 @@ export const fetchCalendarEvents = async (accessToken: string, calendarNames: st
 };
 
 export const getEventDuration = (event: CalendarEvent): number => {
-	const start = event.start.dateTime ? new Date(event.start.dateTime) : new Date(event.start.date || "");
-	const end = event.end.dateTime ? new Date(event.end.dateTime) : new Date(event.end.date || "");
+	// Ignore all-day events (events that use 'date' instead of 'dateTime')
+	if (!event.start.dateTime || !event.end.dateTime) {
+		return 0;
+	}
+
+	const start = new Date(event.start.dateTime);
+	const end = new Date(event.end.dateTime);
 
 	const durationMs = end.getTime() - start.getTime();
 	return durationMs / (1000 * 60 * 60); // Convert to hours

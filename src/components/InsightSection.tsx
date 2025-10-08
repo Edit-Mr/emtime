@@ -4,6 +4,7 @@ import type { AnalysisResult } from "../utils/dataAnalysis";
 
 interface InsightSectionProps {
 	analysis: AnalysisResult;
+	onDateRangeSelect?: (startDate: Date, endDate: Date) => void;
 }
 
 const COLORS = {
@@ -12,7 +13,7 @@ const COLORS = {
 	Life: "#f59e0b"
 };
 
-const InsightSection: React.FC<InsightSectionProps> = ({ analysis }) => {
+const InsightSection: React.FC<InsightSectionProps> = ({ analysis, onDateRangeSelect }) => {
 	const { totalHours, subcategoryHours, dailyBreakdown } = analysis;
 
 	const totalSum = totalHours.Work + totalHours.Study + totalHours.Life;
@@ -68,14 +69,31 @@ const InsightSection: React.FC<InsightSectionProps> = ({ analysis }) => {
 		},
 		legend: {
 			data: ["Work", "Study", "Life"],
-			bottom: "0%"
+			bottom: "12%"
 		},
 		grid: {
 			left: "3%",
 			right: "4%",
-			bottom: "10%",
+			bottom: "20%",
 			containLabel: true
 		},
+		dataZoom: [
+			{
+				type: "slider",
+				show: true,
+				xAxisIndex: [0],
+				start: 0,
+				end: 100,
+				bottom: "2%",
+				height: 20
+			},
+			{
+				type: "inside",
+				xAxisIndex: [0],
+				start: 0,
+				end: 100
+			}
+		],
 		xAxis: {
 			type: "category",
 			boundaryGap: false,
@@ -146,6 +164,26 @@ const InsightSection: React.FC<InsightSectionProps> = ({ analysis }) => {
 			}));
 	};
 
+	// Handle dataZoom event to update date range
+	const onChartEvents = {
+		dataZoom: (params: any) => {
+			if (onDateRangeSelect && params.batch && params.batch[0]) {
+				const { startValue, endValue } = params.batch[0];
+				
+				// Get the selected dates from the daily breakdown
+				if (typeof startValue === "number" && typeof endValue === "number") {
+					const startDate = new Date(dailyBreakdown[startValue].date);
+					const endDate = new Date(dailyBreakdown[endValue].date);
+					
+					// Set end date to end of day
+					endDate.setHours(23, 59, 59, 999);
+					
+					onDateRangeSelect(startDate, endDate);
+				}
+			}
+		}
+	};
+
 	return (
 		<div className="space-y-6">
 			{/* Summary Cards */}
@@ -173,6 +211,14 @@ const InsightSection: React.FC<InsightSectionProps> = ({ analysis }) => {
 					</p>
 				</div>
 			</div>
+
+            {/* Area Chart */}
+			{dailyBreakdown.length > 0 && (
+				<div className="bg-white rounded-lg shadow p-6">
+					<h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Time Distribution</h3>
+					<ReactECharts option={areaOption} style={{ height: "400px" }} onEvents={onChartEvents} />
+				</div>
+			)}
 
 			{/* Charts Row */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -203,14 +249,6 @@ const InsightSection: React.FC<InsightSectionProps> = ({ analysis }) => {
 					</div>
 				</div>
 			</div>
-
-			{/* Area Chart */}
-			{dailyBreakdown.length > 0 && (
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Time Distribution</h3>
-					<ReactECharts option={areaOption} style={{ height: "350px" }} />
-				</div>
-			)}
 
 			{/* Subcategory Rankings */}
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">

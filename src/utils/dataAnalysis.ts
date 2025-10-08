@@ -8,9 +8,9 @@ export interface CategoryMapping {
 }
 
 export const categoryMapping: CategoryMapping = {
-	Work: ["sitcon", "sdc", "coscup", "emtech", "coding", "justfont", "justwritenow", "debate", "core system"],
-	Study: ["calculus", "linear algebra", "project management", "高齡設計"],
-	Life: ["gym"]
+	Work: ["SITCON", "SDC", "COSCUP", "emtech", "Coding", "justfont", "justwriteNOW", "Debate", "Core System","Bamboofox"],
+	Study: [],
+	Life: ["Gym"]
 };
 
 export interface AnalysisResult {
@@ -38,31 +38,9 @@ export interface AnalysisResult {
 }
 
 export const categorizeEvent = (event: CalendarEvent): string => {
-	const summaryLower = event.summary.toLowerCase();
-
-	// Check Work subcategories
-	for (const subcategory of categoryMapping.Work) {
-		if (summaryLower.includes(subcategory)) {
-			return "Work";
-		}
-	}
-
-	// Check Study subcategories
-	for (const subcategory of categoryMapping.Study) {
-		if (summaryLower.includes(subcategory)) {
-			return "Study";
-		}
-	}
-
-	// Check Life subcategories
-	for (const subcategory of categoryMapping.Life) {
-		if (summaryLower.includes(subcategory)) {
-			return "Life";
-		}
-	}
-
-	// Default categorization based on calendar type
-	return event.calendarType === "Class" || event.calendarType === "Study" ? "Study" : "Work";
+	// Category is determined by the calendar name (already set as calendarType in the service)
+	// Calendar names: "Work" calendars → Work, "Class"/"Study" calendars → Study, "Life" calendars → Life
+	return event.calendarType;
 };
 
 export const getSubcategory = (event: CalendarEvent, category: string): string => {
@@ -70,8 +48,8 @@ export const getSubcategory = (event: CalendarEvent, category: string): string =
 	const subcategories = categoryMapping[category as keyof CategoryMapping] || [];
 
 	for (const subcategory of subcategories) {
-		if (summaryLower.includes(subcategory)) {
-			return subcategory.charAt(0).toUpperCase() + subcategory.slice(1);
+		if (summaryLower.includes(subcategory.toLowerCase())) {
+			return subcategory;
 		}
 	}
 
