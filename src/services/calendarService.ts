@@ -13,13 +13,62 @@ export interface CalendarEvent {
 	calendarType: "Work" | "Life" | "Study";
 }
 
+// Google Calendar API types
+interface GapiClient {
+	load: (api: string, callback: () => void) => void;
+	client: {
+		init: (config: { discoveryDocs: string[] }) => Promise<void>;
+		setToken: (token: { access_token: string }) => void;
+		calendar: {
+			calendarList: {
+				list: () => Promise<{ result: { items: GoogleCalendar[] } }>;
+			};
+			events: {
+				list: (params: {
+					calendarId: string;
+					timeMin: string;
+					timeMax: string;
+					showDeleted: boolean;
+					singleEvents: boolean;
+					orderBy: string;
+				}) => Promise<{ result: { items: GoogleCalendarEvent[] } }>;
+			};
+		};
+	};
+}
+
+interface GoogleCalendar {
+	id: string;
+	summary: string;
+}
+
+interface GoogleCalendarEvent {
+	id: string;
+	summary?: string;
+	description?: string;
+	start: {
+		dateTime?: string;
+		date?: string;
+	};
+	end: {
+		dateTime?: string;
+		date?: string;
+	};
+}
+
+declare global {
+	interface Window {
+		gapi: GapiClient;
+	}
+}
+
 export const initGoogleCalendarAPI = () => {
 	return new Promise<void>((resolve, reject) => {
 		// Check if script is already loaded
-		if ((window as any).gapi) {
-			(window as any).gapi.load("client", async () => {
+		if (window.gapi) {
+			window.gapi.load("client", async () => {
 				try {
-					await (window as any).gapi.client.init({
+					await window.gapi.client.init({
 						discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"]
 					});
 					resolve();
@@ -33,9 +82,9 @@ export const initGoogleCalendarAPI = () => {
 		const script = document.createElement("script");
 		script.src = "https://apis.google.com/js/api.js";
 		script.onload = () => {
-			(window as any).gapi.load("client", async () => {
+			window.gapi.load("client", async () => {
 				try {
-					await (window as any).gapi.client.init({
+					await window.gapi.client.init({
 						discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"]
 					});
 					resolve();
@@ -52,14 +101,14 @@ export const initGoogleCalendarAPI = () => {
 export const fetchCalendarEvents = async (accessToken: string, calendarNames: string[], startDate: Date, endDate: Date): Promise<CalendarEvent[]> => {
 	try {
 		// Set the access token
-		(window as any).gapi.client.setToken({ access_token: accessToken });
+		window.gapi.client.setToken({ access_token: accessToken });
 
 		// First, get all calendars
-		const calendarListResponse = await (window as any).gapi.client.calendar.calendarList.list();
+		const calendarListResponse = await window.gapi.client.calendar.calendarList.list();
 		const calendars = calendarListResponse.result.items;
 
 		// Find calendars matching the names
-		const targetCalendars = calendars.filter((cal: any) => calendarNames.some(name => cal.summary?.toLowerCase().includes(name.toLowerCase())));
+		const targetCalendars = calendars.filter((cal: GoogleCalendar) => calendarNames.some(name => cal.summary?.toLowerCase().includes(name.toLowerCase())));
 
 		if (targetCalendars.length === 0) {
 			console.warn("No matching calendars found for names:", calendarNames);
@@ -71,7 +120,7 @@ export const fetchCalendarEvents = async (accessToken: string, calendarNames: st
 
 		for (const calendar of targetCalendars) {
 			try {
-				const response = await (window as any).gapi.client.calendar.events.list({
+				const response = await window.gapi.client.calendar.events.list({
 					calendarId: calendar.id,
 					timeMin: startDate.toISOString(),
 					timeMax: endDate.toISOString(),
@@ -91,7 +140,7 @@ export const fetchCalendarEvents = async (accessToken: string, calendarNames: st
 					calendarType = "Study";
 				}
 
-				events.forEach((event: any) => {
+				events.forEach((event: GoogleCalendarEvent) => {
 					allEvents.push({
 						id: event.id,
 						summary: event.summary || "Untitled",

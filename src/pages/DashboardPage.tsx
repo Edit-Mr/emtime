@@ -90,15 +90,6 @@ const DashboardPage: React.FC = () => {
 		loadCalendarData();
 	};
 
-	const handleDateRangeSelect = (newStartDate: Date, newEndDate: Date) => {
-		setStartDate(newStartDate);
-		setEndDate(newEndDate);
-		// Automatically refresh data with new date range
-		setTimeout(() => {
-			loadCalendarData();
-		}, 100);
-	};
-
 	if (!user) {
 		return null;
 	}

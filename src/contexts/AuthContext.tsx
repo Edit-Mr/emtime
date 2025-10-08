@@ -8,9 +8,13 @@ interface User {
 	accessToken: string;
 }
 
+interface GoogleLoginResponse {
+	access_token: string;
+}
+
 interface AuthContextType {
 	user: User | null;
-	login: (response: any) => void;
+	login: (response: GoogleLoginResponse) => void;
 	logout: () => void;
 	isLoading: boolean;
 }
@@ -33,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		setIsLoading(false);
 	}, []);
 
-	const login = (response: any) => {
+	const login = (response: GoogleLoginResponse) => {
 		const { access_token } = response;
 
 		// Decode user info from the response
@@ -41,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			headers: { Authorization: `Bearer ${access_token}` }
 		})
 			.then(res => res.json())
-			.then(userInfo => {
+			.then((userInfo: { email: string; name: string; picture: string }) => {
 				const userData: User = {
 					email: userInfo.email,
 					name: userInfo.name,
@@ -68,6 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	);
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
 	const context = useContext(AuthContext);
 	if (context === undefined) {
