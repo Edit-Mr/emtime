@@ -24,10 +24,10 @@ const DashboardPage: React.FC = () => {
 	const tomorrow = new Date();
 	tomorrow.setDate(tomorrow.getDate() + 1);
 	tomorrow.setHours(23, 59, 59, 999);
-	
+
 	const [startDate, setStartDate] = useState<Date>(defaultRange.start);
 	const [endDate, setEndDate] = useState<Date>(tomorrow);
-	const [filterHolidays, setFilterHolidays] = useState(false);
+	const [filterHolidays, setFilterHolidays] = useState(true);
 
 	// Data state
 	const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -107,7 +107,7 @@ const DashboardPage: React.FC = () => {
 		<div className="min-h-screen bg-gray-50">
 			{/* Header */}
 			<header className="bg-white shadow-sm">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
 					<div className="flex justify-between items-center h-16">
 						<div className="flex items-center space-x-3">
 							<div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
@@ -126,7 +126,7 @@ const DashboardPage: React.FC = () => {
 							{showMenu && (
 								<>
 									<div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)}></div>
-									<div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-20">
+									<div className="absolute right-0 mt-2 min-w-48 bg-white rounded-lg shadow-lg py-1 z-20">
 										<div className="px-4 py-2 text-sm text-gray-500 border-b">{user.email}</div>
 										<button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
 											<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,58 +148,7 @@ const DashboardPage: React.FC = () => {
 			</header>
 
 			{/* Main Content */}
-			<main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-				{/* Controls */}
-				<div className="bg-white rounded-lg shadow p-6 mb-6">
-					<h2 className="text-lg font-semibold text-gray-900 mb-4">Time Range</h2>
-
-					<div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-							<DatePicker
-								selected={startDate}
-								onChange={date => date && setStartDate(date)}
-								className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-								dateFormat="MMM d, yyyy"
-							/>
-						</div>
-
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-							<DatePicker
-								selected={endDate}
-								onChange={date => date && setEndDate(date)}
-								className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-								dateFormat="MMM d, yyyy"
-							/>
-						</div>
-
-						<div className="flex items-center">
-							<label className="flex items-center cursor-pointer">
-								<input
-									type="checkbox"
-									checked={filterHolidays}
-									onChange={e => setFilterHolidays(e.target.checked)}
-									className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-								/>
-								<span className="ml-2 text-sm text-gray-700">Filter Holidays</span>
-							</label>
-						</div>
-
-						<div>
-							<button
-								onClick={handleRefresh}
-								disabled={loading}
-								className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-medium px-4 py-2 rounded-lg transition-colors"
-							>
-								{loading ? "Loading..." : "Refresh Data"}
-							</button>
-						</div>
-					</div>
-
-					<p className="text-xs text-gray-500 mt-3">Current range: {formatDateRange(startDate, endDate)}</p>
-				</div>
-
+			<main className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 				{/* Loading State */}
 				{loading && (
 					<div className="flex justify-center items-center py-12">
@@ -210,44 +159,126 @@ const DashboardPage: React.FC = () => {
 				{/* Error State */}
 				{error && <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6">{error}</div>}
 
-				{/* Tabs */}
+				{/* Two Column Layout */}
 				{!loading && events.length > 0 && analysis && (
-					<>
-						<div className="bg-white rounded-lg shadow mb-6">
-							<div className="border-b border-gray-200">
-								<nav className="flex space-x-8 px-6" aria-label="Tabs">
+					<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+						{/* Left Column - Controls, Summary, Pie Chart, Ranking */}
+						<div className="lg:col-span-1 space-y-6">
+							{/* Time Range Controls */}
+							<div className="bg-white rounded-lg shadow p-6">
+								<h2 className="text-lg font-semibold text-gray-900 mb-4">Time Range</h2>
+
+								<div className="space-y-4">
+									<div className="flex gap-4 items-center">
+										<DatePicker
+											selected={startDate}
+											onChange={date => date && setStartDate(date)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+											dateFormat="MMM d, yyyy"
+										/>
+										<div className="text-sm font-medium text-gray-700">~</div>
+										<DatePicker
+											selected={endDate}
+											onChange={date => date && setEndDate(date)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+											dateFormat="MMM d, yyyy"
+										/>
+									</div>
+
+									<div className="flex items-center">
+										<label className="flex items-center cursor-pointer">
+											<input
+												type="checkbox"
+												checked={filterHolidays}
+												onChange={e => setFilterHolidays(e.target.checked)}
+												className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+											/>
+											<span className="ml-2 text-sm text-gray-700">Filter Holidays</span>
+										</label>
+									</div>
+
 									<button
-										onClick={() => setCurrentTab("insights")}
-										className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-											currentTab === "insights" ? "border-primary-600 text-primary-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-										}`}
+										onClick={handleRefresh}
+										disabled={loading}
+										className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-medium px-4 py-2 rounded-lg transition-colors"
 									>
-										Insights
+										{loading ? "Loading..." : "Refresh Data"}
 									</button>
-									<button
-										onClick={() => setCurrentTab("goals")}
-										className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-											currentTab === "goals" ? "border-primary-600 text-primary-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-										}`}
-									>
-										Goals
-									</button>
-									<button
-										onClick={() => setCurrentTab("log")}
-										className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-											currentTab === "log" ? "border-primary-600 text-primary-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-										}`}
-									>
-										Log
-									</button>
-								</nav>
+								</div>
+
+								<p className="text-xs text-gray-500 mt-3 hidden">Current range: {formatDateRange(startDate, endDate)}</p>
 							</div>
+
+							{/* Summary Cards - Flex Layout */}
+							<div className="bg-white rounded-lg shadow p-6">
+								<h3 className="text-sm font-medium text-gray-700 mb-3">Total Hours</h3>
+								<div className="flex items-center justify-around gap-4 mb-4">
+									<div className="text-center">
+										<p className="text-3xl font-bold text-primary-600">{analysis.totalHours.Work.toFixed(1)}</p>
+										<p className="text-xs text-gray-500 mt-1">Work</p>
+									</div>
+									<div className="text-center">
+										<p className="text-3xl font-bold text-green-500">{analysis.totalHours.Study.toFixed(1)}</p>
+										<p className="text-xs text-gray-500 mt-1">Study</p>
+									</div>
+									<div className="text-center">
+										<p className="text-3xl font-bold text-yellow-500">{analysis.totalHours.Life.toFixed(1)}</p>
+										<p className="text-xs text-gray-500 mt-1">Life</p>
+									</div>
+								</div>
+								<div className="pt-3 border-t border-gray-200">
+									<p className="text-center text-xl font-bold text-gray-900">{(analysis.totalHours.Work + analysis.totalHours.Study + analysis.totalHours.Life).toFixed(1)}</p>
+									<p className="text-center text-xs text-gray-500 mt-1">Total</p>
+								</div>
+							</div>
+
+							{/* Category Distribution Pie Chart */}
+							<InsightSection analysis={analysis} viewMode="pieOnly" />
+
+							{/* Category Ranking */}
+							<InsightSection analysis={analysis} viewMode="rankingOnly" />
 						</div>
 
-						{currentTab === "insights" && <InsightSection analysis={analysis} onDateRangeSelect={handleDateRangeSelect} />}
-						{currentTab === "goals" && <GoalSection goalAnalysis={goalAnalysis} />}
-						{currentTab === "log" && <LogSection analysis={analysis} />}
-					</>
+						{/* Right Column - Tabs Content */}
+						<div className="lg:col-span-2 space-y-6">
+							{/* Tabs */}
+							<div className="bg-white rounded-lg shadow">
+								<div className="border-b border-gray-200">
+									<nav className="flex space-x-8 px-6" aria-label="Tabs">
+										<button
+											onClick={() => setCurrentTab("insights")}
+											className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+												currentTab === "insights" ? "border-primary-600 text-primary-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+											}`}
+										>
+											Insights
+										</button>
+										<button
+											onClick={() => setCurrentTab("goals")}
+											className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+												currentTab === "goals" ? "border-primary-600 text-primary-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+											}`}
+										>
+											Goals
+										</button>
+										<button
+											onClick={() => setCurrentTab("log")}
+											className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+												currentTab === "log" ? "border-primary-600 text-primary-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+											}`}
+										>
+											Log
+										</button>
+									</nav>
+								</div>
+							</div>
+
+							{/* Tab Content */}
+							{currentTab === "insights" && <InsightSection analysis={analysis} />}
+							{currentTab === "goals" && <GoalSection goalAnalysis={goalAnalysis} />}
+							{currentTab === "log" && <LogSection analysis={analysis} />}
+						</div>
+					</div>
 				)}
 
 				{/* No Data State */}

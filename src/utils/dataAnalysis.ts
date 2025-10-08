@@ -8,9 +8,9 @@ export interface CategoryMapping {
 }
 
 export const categoryMapping: CategoryMapping = {
-	Work: ["SITCON", "SDC", "COSCUP", "emtech", "Coding", "justfont", "justwriteNOW", "Debate", "Core System","Bamboofox"],
+	Work: ["SITCON", "SDC", "COSCUP", "emtech", "Coding", "justfont", "justwriteNOW", "Debate", "Core System", "Bamboofox"],
 	Study: [],
-	Life: ["Gym"]
+	Life: ["Gym","Swimming"]
 };
 
 export interface AnalysisResult {
@@ -166,7 +166,8 @@ export const analyzeGoals = (events: CalendarEvent[]): GoalAnalysis[] => {
 		}
 
 		// Check for sport (30 mins = 0.5 hours goal)
-		if (summaryLower.includes("gym") || summaryLower.includes("sport") || summaryLower.includes("exercise")) {
+        const sportKeywords = ["gym", "sport", "exercise", "swimming"];
+		if (sportKeywords.some(keyword => summaryLower.includes(keyword))) {
 			dailyData.sport += duration;
 		}
 	});

@@ -21,6 +21,11 @@ export default {
 					600: "#6b4492",
 					700: "#5f3d82"
 				}
+			},
+			maxWidth: {
+				"8xl": "90rem", // 1440px
+				"9xl": "100rem", // 1600px
+				"screen-2xl": "1920px" // 常用全寬
 			}
 		}
 	},

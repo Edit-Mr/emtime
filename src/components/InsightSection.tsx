@@ -4,7 +4,7 @@ import type { AnalysisResult } from "../utils/dataAnalysis";
 
 interface InsightSectionProps {
 	analysis: AnalysisResult;
-	onDateRangeSelect?: (startDate: Date, endDate: Date) => void;
+	viewMode?: "full" | "pieOnly" | "rankingOnly";
 }
 
 const COLORS = {
@@ -13,7 +13,7 @@ const COLORS = {
 	Life: "#f59e0b"
 };
 
-const InsightSection: React.FC<InsightSectionProps> = ({ analysis, onDateRangeSelect }) => {
+const InsightSection: React.FC<InsightSectionProps> = ({ analysis, viewMode = "full" }) => {
 	const { totalHours, subcategoryHours, dailyBreakdown } = analysis;
 
 	const totalSum = totalHours.Work + totalHours.Study + totalHours.Life;
@@ -155,80 +155,29 @@ const InsightSection: React.FC<InsightSectionProps> = ({ analysis, onDateRangeSe
 	// Get subcategory ranking
 	const getSubcategoryRanking = (category: string) => {
 		const subcats = subcategoryHours[category] || {};
-		return Object.entries(subcats)
-			.sort(([, a], [, b]) => b - a)
-			.slice(0, 10)
-			.map(([name, hours]) => ({
-				name,
-				hours: hours.toFixed(2)
-			}));
-	};
-
-	// Handle dataZoom event to update date range
-	const onChartEvents = {
-		dataZoom: (params: any) => {
-			if (onDateRangeSelect && params.batch && params.batch[0]) {
-				const { startValue, endValue } = params.batch[0];
-				
-				// Get the selected dates from the daily breakdown
-				if (typeof startValue === "number" && typeof endValue === "number") {
-					const startDate = new Date(dailyBreakdown[startValue].date);
-					const endDate = new Date(dailyBreakdown[endValue].date);
-					
-					// Set end date to end of day
-					endDate.setHours(23, 59, 59, 999);
-					
-					onDateRangeSelect(startDate, endDate);
-				}
-			}
-		}
+		return (
+			Object.entries(subcats)
+				.sort(([, a], [, b]) => b - a)
+				// .slice(0, 10)
+				.map(([name, hours]) => ({
+					name,
+					hours: hours.toFixed(2)
+				}))
+		);
 	};
 
 	return (
 		<div className="space-y-6">
-			{/* Summary Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+			{/* Pie Chart Only View */}
+			{viewMode === "pieOnly" && (
 				<div className="bg-white rounded-lg shadow p-6">
-					<p className="text-sm text-gray-600 mb-2">Total Hours</p>
-					<p className="text-3xl font-bold text-gray-900">{totalSum.toFixed(1)}</p>
-				</div>
-				<div className="bg-white rounded-lg shadow p-6 border-l-4" style={{ borderColor: COLORS.Work }}>
-					<p className="text-sm text-gray-600 mb-2">Work Hours</p>
-					<p className="text-3xl font-bold" style={{ color: COLORS.Work }}>
-						{totalHours.Work.toFixed(1)}
-					</p>
-				</div>
-				<div className="bg-white rounded-lg shadow p-6 border-l-4" style={{ borderColor: COLORS.Study }}>
-					<p className="text-sm text-gray-600 mb-2">Study Hours</p>
-					<p className="text-3xl font-bold" style={{ color: COLORS.Study }}>
-						{totalHours.Study.toFixed(1)}
-					</p>
-				</div>
-				<div className="bg-white rounded-lg shadow p-6 border-l-4" style={{ borderColor: COLORS.Life }}>
-					<p className="text-sm text-gray-600 mb-2">Life Hours</p>
-					<p className="text-3xl font-bold" style={{ color: COLORS.Life }}>
-						{totalHours.Life.toFixed(1)}
-					</p>
-				</div>
-			</div>
-
-            {/* Area Chart */}
-			{dailyBreakdown.length > 0 && (
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Time Distribution</h3>
-					<ReactECharts option={areaOption} style={{ height: "400px" }} onEvents={onChartEvents} />
+					<h3 className="text-lg font-semibold text-gray-900 mb-4">Category Distribution</h3>
+					<ReactECharts option={pieOption} style={{ height: "300px" }} />
 				</div>
 			)}
 
-			{/* Charts Row */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-				{/* Pie Chart */}
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-lg font-semibold text-gray-900 mb-4">Category Distribution</h3>
-					<ReactECharts option={pieOption} style={{ height: "350px" }} />
-				</div>
-
-				{/* Ranking List */}
+			{/* Ranking Only View */}
+			{viewMode === "rankingOnly" && (
 				<div className="bg-white rounded-lg shadow p-6">
 					<h3 className="text-lg font-semibold text-gray-900 mb-4">Category Ranking</h3>
 					<div className="space-y-3">
@@ -248,29 +197,42 @@ const InsightSection: React.FC<InsightSectionProps> = ({ analysis, onDateRangeSe
 						))}
 					</div>
 				</div>
-			</div>
+			)}
 
-			{/* Subcategory Rankings */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-				{["Work", "Study", "Life"].map(category => (
-					<div key={category} className="bg-white rounded-lg shadow p-6">
-						<h3 className="text-lg font-semibold mb-4" style={{ color: COLORS[category as keyof typeof COLORS] }}>
-							{category} Breakdown
-						</h3>
-						<div className="space-y-2">
-							{getSubcategoryRanking(category).map((item, index) => (
-								<div key={item.name} className={index < getSubcategoryRanking(category).length - 1 ? "pb-2 border-b border-gray-100" : ""}>
-									<div className="flex justify-between items-center">
-										<span className="text-sm text-gray-700">{item.name}</span>
-										<span className="text-sm font-semibold text-gray-900">{item.hours} hrs</span>
-									</div>
-								</div>
-							))}
-							{getSubcategoryRanking(category).length === 0 && <p className="text-sm text-gray-500">No events in this category</p>}
+			{/* Full View - Daily Chart and Breakdowns */}
+			{viewMode === "full" && (
+				<>
+					{/* Daily Time Distribution Chart */}
+					{dailyBreakdown.length > 0 && (
+						<div className="bg-white rounded-lg shadow p-6">
+							<h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Time Distribution</h3>
+							<ReactECharts option={areaOption} style={{ height: "450px" }} />
 						</div>
+					)}
+
+					{/* Subcategory Rankings */}
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+						{["Work", "Study", "Life"].map(category => (
+							<div key={category} className="bg-white rounded-lg shadow p-6">
+								<h3 className="text-lg font-semibold mb-4" style={{ color: COLORS[category as keyof typeof COLORS] }}>
+									{category} Breakdown
+								</h3>
+								<div className="space-y-2">
+									{getSubcategoryRanking(category).map((item, index) => (
+										<div key={item.name} className={index < getSubcategoryRanking(category).length - 1 ? "pb-2 border-b border-gray-100" : ""}>
+											<div className="flex justify-between items-center">
+												<span className="text-sm text-gray-700">{item.name}</span>
+												<span className="text-sm font-semibold text-gray-900">{item.hours} hrs</span>
+											</div>
+										</div>
+									))}
+									{getSubcategoryRanking(category).length === 0 && <p className="text-sm text-gray-500">No events in this category</p>}
+								</div>
+							</div>
+						))}
 					</div>
-				))}
-			</div>
+				</>
+			)}
 		</div>
 	);
 };
