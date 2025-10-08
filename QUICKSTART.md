@@ -13,12 +13,12 @@
 1. Visit [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project (or use existing)
 3. Enable **Google Calendar API**:
-   - APIs & Services → Library → Search "Calendar" → Enable
+    - APIs & Services → Library → Search "Calendar" → Enable
 4. Create **OAuth Client ID**:
-   - APIs & Services → Credentials → Create Credentials
-   - Application type: Web application
-   - Authorized origins: `http://localhost:5173`
-   - **Copy the Client ID** 📋 (This is all you need!)
+    - APIs & Services → Credentials → Create Credentials
+    - Application type: Web application
+    - Authorized origins: `http://localhost:5173`
+    - **Copy the Client ID** 📋 (This is all you need!)
 
 ### Step 2: Project Setup (2 minutes)
 
@@ -36,6 +36,7 @@ cp .env.example .env
 ### Step 3: Setup Your Calendars
 
 Create or rename calendars in Google Calendar:
+
 - Calendar named "**Work**"
 - Calendar named "**Class**" or "**Study**"
 - Calendar named "**Study**" (if not using Class)
@@ -53,29 +54,34 @@ Visit: **http://localhost:5173**
 ## 📊 What to Expect
 
 ### Home Page
+
 - Beautiful landing page
 - "Sign in with Google" button
 - You'll be asked to grant calendar read permissions
 
 ### Dashboard
+
 - **Date Range**: Auto-detects current semester
 - **Filter Holidays**: Toggle to exclude weekends/family days
 - **Three Tabs**:
-  - **Insights**: Charts and statistics
-  - **Goals**: Track coding (2h), study (2h), sport (30min) daily
-  - **Log**: Expandable tree of all events
+    - **Insights**: Charts and statistics
+    - **Goals**: Track coding (2h), study (2h), sport (30min) daily
+    - **Log**: Expandable tree of all events
 
 ## 🎨 Event Categorization
 
 The app automatically categorizes events by keywords in their names:
 
 ### Work Events
+
 Keywords: SITCON, SDC, COSCUP, emtech, Coding, justfont, Debate, Core System
 
 ### Study Events
+
 Keywords: Calculus, Linear Algebra, Project Management, 高齡設計
 
 ### Life Events
+
 Keywords: GYM
 
 ## 🛠️ Customization Tips
@@ -86,9 +92,9 @@ Edit `src/utils/dataAnalysis.ts`:
 
 ```typescript
 export const categoryMapping: CategoryMapping = {
-  Work: ['sitcon', 'meeting', 'project'],  // Add your keywords
-  Study: ['calculus', 'homework', 'lab'],
-  Life: ['gym', 'yoga', 'meditation'],
+	Work: ["sitcon", "meeting", "project"], // Add your keywords
+	Study: ["calculus", "homework", "lab"],
+	Life: ["gym", "yoga", "meditation"]
 };
 ```
 
@@ -105,16 +111,19 @@ sportGoal: 0.5,   // 30 minutes = 0.5 hours
 ## ❓ Troubleshooting
 
 ### "No events found"
+
 - ✅ Check calendar names contain "Work", "Class", or "Study"
 - ✅ Verify date range includes your events
 - ✅ Make sure you have events in those calendars
 
 ### Authentication errors
+
 - ✅ Verify Client ID is correct in `.env`
 - ✅ Check authorized origins in Google Cloud Console
 - ✅ Try incognito mode
 
 ### API Errors
+
 - ✅ Confirm Calendar API is enabled in Google Cloud
 - ✅ Check that you've granted calendar permissions when logging in
 - ✅ Try logging out and back in

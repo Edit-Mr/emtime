@@ -1,14 +1,8 @@
 # emtime - Daily Life Analysis Dashboard# React + TypeScript + Vite
 
-
-
 A React + Material-UI dashboard application to analyze your daily life using Google Calendar data.This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-
-
 ## FeaturesCurrently, two official plugins are available:
-
-
 
 - 🔐 Google OAuth authentication- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
 
@@ -32,7 +26,7 @@ If you are developing a production application, we recommend updating the config
 
 ### 1. Prerequisites
 
-```js
+````js
 
 - Node.js 18+ and pnpm installedexport default defineConfig([
 
@@ -142,7 +136,7 @@ VITE_GOOGLE_API_KEY=your_google_api_key_here      // other options...
 
 ### 6. Run the Development Server])
 
-```
+````
 
 ```bash
 pnpm dev
@@ -153,26 +147,30 @@ The app will be available at `http://localhost:5173`
 ## Usage
 
 ### 1. Login
+
 - Click "Sign in with Google" on the home page
 - Grant calendar read permissions
 
 ### 2. Dashboard
 
 #### Date Range Selector
+
 - The app automatically detects the current semester:
-  - **Fall**: September - January
-  - **Spring**: February - June
-  - **Summer**: July - August
+    - **Fall**: September - January
+    - **Spring**: February - June
+    - **Summer**: July - August
 - You can manually change the date range using the date pickers
 
 #### Filter Holidays
+
 - Toggle "Filter Holidays" to exclude:
-  - Saturdays and Sundays
-  - Full-day events tagged with "Family"
+    - Saturdays and Sundays
+    - Full-day events tagged with "Family"
 
 ### 3. Insights Section
 
 Shows comprehensive analysis of your time:
+
 - **Summary Cards**: Total hours in each category (Work, Study, Life)
 - **Pie Chart**: Visual distribution of time across categories
 - **Ranking List**: Categories sorted by time spent
@@ -184,22 +182,27 @@ Shows comprehensive analysis of your time:
 Events are automatically categorized based on keywords in their names:
 
 **Work** subcategories:
+
 - SITCON, SDC, COSCUP, emtech, Coding, justfont, justwriteNOW, Debate, Core System
 
 **Study** subcategories:
+
 - Calculus, Linear Algebra, Project Management, 高齡設計
 
 **Life** subcategories:
+
 - GYM
 
 ### 4. Goals Section
 
 Track your daily goals:
+
 - **Coding**: 2 hours/day target
 - **Study**: 2 hours/day target
 - **Sport**: 30 minutes/day target
 
 Each goal shows:
+
 - Progress bar with percentage
 - Days goal was met
 - Total actual vs total goal hours
@@ -208,14 +211,15 @@ Each goal shows:
 ### 5. Log Section
 
 Hierarchical view of all events:
+
 - **Categories** (Work, Study, Life)
-  - **Subcategories** (e.g., Calculus, SITCON, GYM)
-    - **Individual Events** with details:
-      - Event name
-      - Date and time
-      - Duration
-      - Calendar source
-      - Description
+    - **Subcategories** (e.g., Calculus, SITCON, GYM)
+        - **Individual Events** with details:
+            - Event name
+            - Date and time
+            - Duration
+            - Calendar source
+            - Description
 
 ## Technology Stack
 
@@ -257,9 +261,9 @@ Edit `src/utils/dataAnalysis.ts`:
 
 ```typescript
 export const categoryMapping: CategoryMapping = {
-  Work: ['sitcon', 'sdc', /* add your keywords */],
-  Study: ['calculus', /* add your keywords */],
-  Life: ['gym', /* add your keywords */],
+	Work: ["sitcon", "sdc" /* add your keywords */],
+	Study: ["calculus" /* add your keywords */],
+	Life: ["gym" /* add your keywords */]
 };
 ```
 
@@ -274,16 +278,19 @@ Edit `src/utils/dateUtils.ts` in the `detectSemester` function.
 ## Troubleshooting
 
 ### "No events found"
+
 - Check that your calendar names contain "Work", "Class", or "Study"
 - Verify the date range includes events
 - Make sure you granted calendar read permissions
 
 ### Authentication errors
+
 - Verify your Google Client ID is correct
 - Check that authorized origins include your local URL
 - Clear browser cache and try again
 
 ### API errors
+
 - Ensure Google Calendar API is enabled in your project
 - Check that your API key is valid and not restricted incorrectly
 - Verify you haven't exceeded API quotas
