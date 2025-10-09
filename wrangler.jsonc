@@ -1,0 +1,7 @@
+ {
+   "name": "emtime",
+   "compatibility_date": "2025-10-09",
+   "assets": {
+     "directory": "./dist"
+   }
+ }
